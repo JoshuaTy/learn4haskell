@@ -559,13 +559,14 @@ value after "=" where the condition is true.
 Casual reminder about adding top-level type signatures for all functions :)
 -}
 
+
 mid :: Int -> Int -> Int -> Int
 mid x y z
-    | x >= y && y <= z = z
-    | x > y && y < z && z < 0 = x
-    | x < y && x > z = x
-    | x < y && x < z && y > z = z
-    | otherwise  = y
+    | x <= y && y <= z = y
+    | x >= y && y >= z = y
+    | x >= z && x <= y = x
+    | x >= y && x <= z = x
+    | otherwise = z
 
 {- |
 =⚔️= Task 8
