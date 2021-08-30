@@ -52,6 +52,7 @@ provide more top-level type signatures, especially when learning Haskell.
 {-# LANGUAGE InstanceSigs #-}
 
 module Chapter3 where
+import Data.List(foldl')
 import Data.Maybe(isJust, fromJust)
 {-
 =🛡= Types in Haskell
@@ -599,7 +600,7 @@ buildCastle :: City -> String -> City
 buildCastle city name =  city{castle = Castle name}
 
 totalNoOfPeople :: [House] -> Word
-totalNoOfPeople = foldr (\(House x) acc -> x + acc) 0
+totalNoOfPeople = foldl' (\acc (House x) -> x + acc) 0
 
 buildWalls :: City -> Int -> City
 buildWalls city noOfWalls
