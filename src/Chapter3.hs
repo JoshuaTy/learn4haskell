@@ -585,7 +585,7 @@ manila = City{
 
 mkHouse :: Word -> Maybe House
 mkHouse noOfPeople
-  | noOfPeople >0 && noOfPeople < 5 = Just (House noOfPeople)
+  | noOfPeople > 0 && noOfPeople < 5 = Just (House noOfPeople)
   | otherwise = Nothing
 
 buildHouse :: City -> Word ->  City
@@ -597,14 +597,17 @@ buildHouse city noOfPeople =
           cityHouses = houses city
 
 buildCastle :: City -> String -> City
-buildCastle city name =  city{castle = Castle name}
+buildCastle city name =
+  case castle city of
+     CastleWithWalls _ walls-> city{castle = CastleWithWalls name walls}
+     _ -> city{castle = Castle name}
 
 totalNoOfPeople :: [House] -> Word
 totalNoOfPeople = foldl' (\acc (House x) -> x + acc) 0
 
 buildWalls :: City -> Int -> City
 buildWalls city noOfWalls
-  | castle city /= NoCastle && totalNoOfPeople (houses city) >= 10 = city{castle = CastleWithWalls getCastleName noOfWalls}
+  | noOfWalls > 0 && castle city /= NoCastle && totalNoOfPeople (houses city) >= 10 = city{castle = CastleWithWalls getCastleName noOfWalls}
   | otherwise = city
     where getCastleName =
             case  castle city of
@@ -1085,7 +1088,7 @@ instance Append Gold where
 
 instance Append [a] where
   append :: [a] -> [a] -> [a]
-  append xs xs' = xs ++ xs'
+  append = (++)
 
 instance (Append a) => Append (Maybe a) where
   append :: Maybe  a -> Maybe a -> Maybe a
@@ -1093,13 +1096,17 @@ instance (Append a) => Append (Maybe a) where
   append Nothing _ = Nothing
   append _ Nothing = Nothing
 
+  -- Alternate solution
+  -- append (Just x) y = Just $ append x (fromJust y)
+  -- append x (Just y) = Just $ append (fromJust x) y
+  -- append Nothing _ = Nothing
+
 
 addGold :: Gold -> Gold-> Gold
 addGold = append
 
 appendList :: [a] -> [a] -> [a]
 appendList = append
-
 
 appendMaybe :: (Append a) => Maybe a -> Maybe a -> Maybe a
 appendMaybe   = append
@@ -1274,44 +1281,36 @@ contestants, and write a function that decides the outcome of a fight!
 --   getAction :: [MonsterActions] -> Int -> MonsterActions
 --   getAction actions ind = actions !! ind
 
-data Action = Hit | DrinkHpPotion Int | CastDefenseUp Int | RunAway deriving (Eq, Show)
+-- data Action = Hit | DrinkHpPotion Int | CastDefenseUp Int | RunAway deriving (Eq, Show)
+
+data KnightAction = KnightAttack | DrinkHpPotion Int | CastDefenseUp Int deriving (Eq, Show)
+
+data MonsterAction = MonsterAttack | RunAway deriving (Eq, Show)
 
 data Fighter = Fighter {
   health :: Health
 , attack :: Attack
 , defense :: Maybe Defense
-, actions :: [Action]
+, actions :: Either [ KnightAction] [MonsterAction]
 } deriving Show
 
 data FighterKind = KnightFighter Fighter | MonsterFighter Fighter deriving Show
 
 k1 :: FighterKind
-k1 = KnightFighter (Fighter (Health 120) (Attack 20) (Just (Defense 10)) [Hit,CastDefenseUp 5, DrinkHpPotion 20])
+k1 = KnightFighter (Fighter (Health 120) (Attack 20) (Just (Defense 10)) (Left [KnightAttack,CastDefenseUp 5, DrinkHpPotion 20]))
 
 k2 :: FighterKind
-k2 = KnightFighter (Fighter (Health 69) (Attack 20) (Just (Defense 10)) [Hit, CastDefenseUp 5, DrinkHpPotion 20])
+k2 = KnightFighter (Fighter (Health 69) (Attack 20) (Just (Defense 10)) (Left [KnightAttack, CastDefenseUp 5, DrinkHpPotion 20]))
 
 m1 :: FighterKind
-m1 = MonsterFighter (Fighter (Health 120) (Attack 20) Nothing [Hit])
+m1 = MonsterFighter (Fighter (Health 120) (Attack 20) Nothing (Right [MonsterAttack]))
 
 class Battle a where
-  getAction :: a -> Int -> Action
   battle :: a -> a -> Maybe Fighter
   getFighter :: a -> Fighter
 
-
+{-}
 instance Battle FighterKind where
-  getAction :: FighterKind -> Int -> Action
-  getAction f ind = let actions' = (actions . getFighter) f
-                        ind' = div (ind - 1) 2
-                    in actions' !! rem ind' (length actions')
-
-
-  -- getAction f ind = let actions' = (actions . getFighter) f
-  --                 in  if ind == 0 then head actions' else actions' !! rem (ind-1) (length actions')
-  -- getAction f ind =  if ind == 0 then (actions . getFighter) f  !! 0 else
-  --   where actions' = (actions . getFighter) f
-
   -- TODO: Battle is already good without actions. Have to Fix bug that involves getting the actions tho :c
   --  So if you wanna test battle without actions, just remove the getActions from the conditions below
   battle :: FighterKind -> FighterKind -> Maybe Fighter
@@ -1344,21 +1343,19 @@ instance Battle FighterKind where
           calculateHit :: Health -> Attack -> Int -> (Health, Int)
           calculateHit (Health hp) (Attack attk) def = if def > attk then (Health hp, def) else  (Health $ (hp-) $ attk - def, def)
 
-
---  | odd rounds && getAction f1 rounds == CastDefenseUp 5 = turnBattle (rounds + 1) (f1' {defense = Just (Defense (getDef f1' + 5))}) (Health hp2)
---             | even rounds && getAction f2 rounds == CastDefenseUp 5  = turnBattle (rounds + 1) (Health hp1) (f2' {defense = Just (Defense (getDef f2' + 5))})
-
   getFighter :: FighterKind -> Fighter
   getFighter (KnightFighter f) = f
   getFighter (MonsterFighter f) = f
 
 
+getAction :: FighterKind -> Int -> Either KnightAction MonsterAction
+getAction f ind = let actions' = (actions . getFighter) f
+                      ind' = div (ind - 1) 2
+                    in actions' !! rem ind' (length actions')
+
 calculateHit2 :: Health -> Attack -> Int -> Health
 calculateHit2 (Health hp) (Attack attk) def = if def > attk then Health hp else  Health $ (hp-) $ attk - def
-
-test :: FighterKind -> Fighter
-test (KnightFighter f) = f {health = Health 0}
-
+-}
 {-
 You did it! Now it is time to open pull request with your changes
 and summon @vrom911 and @chshersh for the review!
