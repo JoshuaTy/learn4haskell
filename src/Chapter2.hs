@@ -621,12 +621,17 @@ Implement a function that duplicates each element of the list
 "aabbaacc"
 
 -}
+-- duplicate :: [a] -> [a]
+-- duplicate  = go []
+--   where
+--     go :: [a] -> [a] -> [a]
+--     go acc [] = reverse acc
+--     go acc (x:xs) = go (x:x:acc) xs
+
+-- alternate solution
 duplicate :: [a] -> [a]
-duplicate  = go []
-  where
-    go :: [a] -> [a] -> [a]
-    go acc [] = reverse acc
-    go acc (x:xs) = go (x:x:acc) xs
+duplicate [] = []
+duplicate (x:xs) = x:x: duplicate xs
 
 {- |
 =⚔️= Task 7
@@ -640,12 +645,18 @@ Write a function that takes elements of a list only in even positions.
 >>> takeEven [2, 1, 3, 5, 4]
 [2,3,4]
 -}
+-- takeEven :: [a] -> [a]
+-- takeEven = go 0 []
+--   where
+--     go :: Int -> [b] -> [b] -> [b]
+--     go _ acc [] = reverse acc
+--     go index acc (x:xs) = if even index then go (index + 1) (x:acc) xs else go (index + 1) acc xs
+
+--  alernate solution
 takeEven :: [a] -> [a]
-takeEven = go 0 []
-  where
-    go :: Int -> [b] -> [b] -> [b]
-    go _ acc [] = reverse acc
-    go index acc (x:xs) = if even index then go (index + 1) (x:acc) xs else go (index + 1) acc xs
+takeEven [] = []
+takeEven (x:_:xs) = x:takeEven xs
+takeEven (x:xs) = x: takeEven xs
 
 {- |
 =🛡= Higher-order functions
@@ -883,11 +894,21 @@ list.
 
 🕯 HINT: Use the 'cycle' function
 -}
+-- rotate :: Int -> [Int] -> [Int]
+-- rotate n xs
+--   | n >= 0 && not (null xs) =  drop n $ take (length xs + n) $ cycle xs
+--   | otherwise = []
+
+-- A;ternate solution
 rotate :: Int -> [Int] -> [Int]
 rotate n xs
-  | n >= 0 && not (null xs) =  drop n $ take (length xs + n) $ cycle xs
+  | n > length xs =  drop  (n - length xs) xs ++ take (n - length  xs) xs
+  | n <= length xs =  drop n $ take (length xs + n) $ cycle xs
   | otherwise = []
 
+-- take n - len xs
+--  drop (len xs - n - len xs) 3
+--  drop (3 - 5)
 -- rotate n xs
 --   | n >= 0 && length xs > 0 =  drop n $ take (length xs + n) $ cycle xs
 --   | otherwise = []
