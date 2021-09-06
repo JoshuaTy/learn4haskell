@@ -512,6 +512,7 @@ instance Applicative List where
 -- For inserting list into a list. Similar to concat
 concatList :: List a -> List a -> List a
 concatList Empty as'= as'
+concatList as Empty = as
 concatList (Cons a as) as' = Cons a (concatList as as')
 
 
@@ -642,9 +643,12 @@ instance Monad List where
   Empty >>= _ = Empty
   Cons a as >>= f = concatList (f a) (as >>= f)
 
-
--- concatList (f 1) (2 >>= f)
---   concatList (f 1) (2 >>= f) concatList (f 2) (Empty >>= f)
+-- (Cons 1 (Cons 2 Empty)) >>= \x -> (Cons x (Cons (-x) Empty))
+-- concatList (f 1) (Cons 2 Empty) >>= f)
+--   concatList (f 1)  concatList (f 2) (Empty >>= f)
+--  concatList (f 1)  concatList (Cons 2 (Cons -2 Empty)) Empty
+-- concatList (Cons 1 (Cons (-1) Empty)) (Cons 2 (Cons (-2) Empty))
+--  Result is Cons 1 (Cons (-1) (Cons 2 (Cons (-2) Empty)))
 
 {- |
 =💣= Task 8*: Before the Final Boss
@@ -663,7 +667,9 @@ Can you implement a monad version of AND, polymorphic over any monad?
 🕯 HINT: Use "(>>=)", "pure" and anonymous function
 -}
 andM :: (Monad m) => m Bool -> m Bool -> m Bool
-andM = error "andM: Not implemented!"
+andM x y = x >>= (\x' -> if x' == False then pure x' else y >>= (\y' -> pure $ y' && x'))
+
+
 
 {- |
 =🐉= Task 9*: Final Dungeon Boss
