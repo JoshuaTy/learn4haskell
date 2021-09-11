@@ -721,7 +721,7 @@ instance Functor Tree where
   fmap f (Leaf a left right) = Leaf (f a) (fmap f left) (fmap f right)
 
 
---  fmap (+1) (Leaf 7 (Leaf 6 (Leaf 4 End End) (Leaf 3 End End)) (Leaf 5 (Leaf 2 End End) (Leaf 1 End End)))
+--  fmap (+1) (Leaf 4 (Leaf 2 (Leaf 1 End End) (Leaf 3 End End)) (Leaf 7 (Leaf 6 End End) (Leaf 9 End End)))
 --       7
 --   6      5
 -- 4  3    2  1
@@ -729,6 +729,13 @@ instance Functor Tree where
 reverseTree :: Tree a -> Tree a
 reverseTree End = End
 reverseTree (Leaf a l r) = Leaf a (reverseTree r) (reverseTree l)
+
+-- (Leaf 1 (Leaf 3  End End) (Leaf 4 (Leaf 2 End (Leaf 5 End End)) End))
+-- (Leaf 1 (Leaf 2 (Leaf 3  End End) (Leaf 4 End End)) (Leaf 5 End (Leaf 6 End End)) )
+
+treeToList :: Tree a -> [a]
+treeToList End = []
+treeToList (Leaf a l r) = (a:treeToList l) ++ treeToList r
 
 {-
 You did it! Now it is time to open pull request with your changes
