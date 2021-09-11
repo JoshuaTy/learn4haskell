@@ -524,8 +524,9 @@ branches because it is an expression and it must always return some value.
   satisfying the check will be returned and, therefore, evaluated.
 -}
 closestToZero :: Int -> Int -> Int
--- My other solution --> closestToZero x y = min (abs x)(abs y)
 closestToZero x y = if abs x < abs y then x else y
+
+-- My other attempt but failed --> closestToZero x y = min (abs x)(abs y)
 
 {- |
 =⚔️= Task 7
@@ -558,13 +559,14 @@ value after "=" where the condition is true.
 Casual reminder about adding top-level type signatures for all functions :)
 -}
 
+
 mid :: Int -> Int -> Int -> Int
 mid x y z
-    | x > y && y < z && z > 0 = z
-    | x > y && y < z && z < 0 = x
-    | x < y && x > z = x
-    | x < y && x < z && y > z = z
-    | otherwise  = y
+    | x <= y && y <= z = y
+    | x >= y && y >= z = y
+    | x >= z && x <= y = x
+    | x >= y && x <= z = x
+    | otherwise = z
 
 {- |
 =⚔️= Task 8
@@ -579,9 +581,12 @@ True
 False
 -}
 isVowel :: Char -> Bool
-isVowel c
-    | c == 'a' || c == 'e' || c == 'i' ||  c == 'o' || c== 'u' = True
-    | otherwise = False
+isVowel c = c `elem` ['a', 'e', 'i', 'o', 'u']
+
+
+-- isVowel c
+--     | c == 'a' || c == 'e' || c == 'i' ||  c == 'o' || c== 'u' = True
+--     | otherwise = False
 
 
 {- |
@@ -649,9 +654,8 @@ sumLast2 :: Integer -> Integer
 sumLast2 n =
   let posN = abs n
       lastNs = mod posN 100
-      firstN = div lastNs 10
-      secondN = mod lastNs 10
-  in firstN + secondN
+      (first, second) = divMod lastNs 10
+  in first + second
 
 
 {- |
@@ -673,16 +677,12 @@ aren't ready for this boss yet!
 -}
 
 firstDigit :: Int -> Int
-firstDigit n
-    | div n 10 == 0 = n
-firstDigit n = firstDigit (div n 10)
+firstDigit = firstDigit' . abs
+  where firstDigit' :: Int -> Int
+        firstDigit' absN
+          | div absN 10 == 0 = absN
+        firstDigit' absN = firstDigit' (div absN 10)
 
--- firstDigit n =
---   let la = firstDigit (div n 10)
---   in n
--- firstDigit n
---     | firstDigit(div n 10) == 10  = div n 10
---     | otherwise  = n
 
 
 

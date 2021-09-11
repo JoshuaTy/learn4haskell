@@ -336,19 +336,12 @@ from it!
 ghci> :l src/Chapter2.hs
 -}
 subList :: Int -> Int -> [a] -> [a]
-subList start end lst
-  | start == 0 && start == end = take 1 lst
-  | start == 0 && start /= end = lst
-  | start >= 0 && start < end = reduceList start end lst
+subList start end xs
+  | start >= 0 && start <= end = reduceList start end xs
   | otherwise  = []
   where
      reduceList :: Int -> Int -> [a] -> [a]
-     reduceList x y lst2 =take ( y - x + 1) $ take y $ drop x lst2
-    -- reduceList x y lst2 =take x $ take y $ drop x lst2
--- subList start end lst = if start >=0 && end >= 0 then reduceList start end lst else []
---   where
---     -- reduceList x y lst =  take (length - x)  $ drop x lst
---     reduceList x y lst =  take (length(lst) - x) $ drop x lst
+     reduceList x y xs2 = take ( y - x + 1) $ drop x xs2
 
 {- |
 =⚔️= Task 4
@@ -523,7 +516,7 @@ evalOperation op x y = case op of
     _  -> 0
 
 isThird42 :: [Int] -> Bool
-isThird42 (_: _ : 42 : _ ) =  True
+isThird42 (_: _ : 42 : _ ) = True
 isThird42 _ = False
 
 
@@ -628,14 +621,17 @@ Implement a function that duplicates each element of the list
 "aabbaacc"
 
 -}
+-- duplicate :: [a] -> [a]
+-- duplicate  = go []
+--   where
+--     go :: [a] -> [a] -> [a]
+--     go acc [] = reverse acc
+--     go acc (x:xs) = go (x:x:acc) xs
+
+-- alternate solution
 duplicate :: [a] -> [a]
--- duplicate (x:[]) = []
--- duplicate (x:xs) =  duplicate ([] ++ acc ++ [x] ++ [x]) xs
-duplicate l = go [] l
-  where
-    go :: [a] -> [a] -> [a]
-    go acc [] = acc
-    go acc (x:xs) = go (acc ++ [x] ++ [x]) xs
+duplicate [] = []
+duplicate (x:xs) = x:x: duplicate xs
 
 {- |
 =⚔️= Task 7
@@ -649,22 +645,18 @@ Write a function that takes elements of a list only in even positions.
 >>> takeEven [2, 1, 3, 5, 4]
 [2,3,4]
 -}
-takeEven :: [a] -> [a]
-takeEven l
-  | length l >= 2 = go 0 [] l
-  | length l == 1 = [head l]
-  | otherwise = []
-  where
-    go :: Int -> [b] -> [b] -> [b]
-    go _ acc [] = acc
-    go pos acc (x:xs) = if mod pos 2 == 0 then go (pos + 1) (acc ++ [x]) xs else go (pos + 1) acc xs
--- takeEven l
---   | length l >= 2 = go [] l
---   | otherwise = []
+-- takeEven :: [a] -> [a]
+-- takeEven = go 0 []
 --   where
---     go :: Integral a => [a] -> [a] -> [a]
---     go acc [] = acc
---     go acc (x:xs) = if (mod x 2) == 0 then go (acc ++ [x]) xs else go acc xs
+--     go :: Int -> [b] -> [b] -> [b]
+--     go _ acc [] = reverse acc
+--     go index acc (x:xs) = if even index then go (index + 1) (x:acc) xs else go (index + 1) acc xs
+
+--  alernate solution
+takeEven :: [a] -> [a]
+takeEven [] = []
+takeEven (x:_:xs) = x:takeEven xs
+takeEven (x:xs) = x: takeEven xs
 
 {- |
 =🛡= Higher-order functions
@@ -771,10 +763,12 @@ value of the element itself
 🕯 HINT: Use combination of 'map' and 'replicate'
 -}
 smartReplicate :: [Int] -> [Int]
-smartReplicate l
-  | length l > 1 = concat $ map  (\x -> replicate x x) l
-  | length l == 1  && head l > 0 = l
-  | otherwise = []
+smartReplicate = concatMap (\x -> replicate x x)
+
+
+-- smartReplicate l
+-- | length l > 1 = concat $ map  (\x -> replicate x x) l
+-- | otherwise = []
 
 {- |
 =⚔️= Task 9
@@ -788,10 +782,7 @@ the list with only those lists that contain a passed element.
 🕯 HINT: Use the 'elem' function to check whether an element belongs to a list
 -}
 contains :: Int -> [[Int]] -> [[Int]]
-contains n l
-  | length l>=1 = filter (\x -> n `elem` x) l
-  | otherwise = []
-
+contains n = filter (elem n)
 
 {- |
 =🛡= Eta-reduction
@@ -848,7 +839,7 @@ listElementsLessThan x  = filter (< x)
 
 -- pairMul xs ys = zipWith (*) xs ys
 pairMul :: Num a => [a] -> [a] -> [a]
-pairMul xs  = zipWith (*) xs
+pairMul  = zipWith (*)
 
 {- |
 =🛡= Lazy evaluation
@@ -903,11 +894,24 @@ list.
 
 🕯 HINT: Use the 'cycle' function
 -}
+-- rotate :: Int -> [Int] -> [Int]
+-- rotate n xs
+--   | n >= 0 && not (null xs) =  drop n $ take (length xs + n) $ cycle xs
+--   | otherwise = []
+
+-- A;ternate solution
 rotate :: Int -> [Int] -> [Int]
-rotate n lst
-  | n >= 0 && length lst > 0 =  drop n $ take (length lst + n) $ cycle lst
+rotate n xs
+  | n > length xs =  drop  (n - length xs) xs ++ take (n - length  xs) xs
+  | n <= length xs =  drop n $ take (length xs + n) $ cycle xs
   | otherwise = []
 
+-- take n - len xs
+--  drop (len xs - n - len xs) 3
+--  drop (3 - 5)
+-- rotate n xs
+--   | n >= 0 && length xs > 0 =  drop n $ take (length xs + n) $ cycle xs
+--   | otherwise = []
 
 {- |
 =💣= Task 12*
@@ -924,7 +928,7 @@ and reverses it.
   cheating!
 -}
 rewind :: [a] -> [a]
-rewind lst = go [] lst
+rewind = go []
   where
     go :: [a] -> [a] -> [a]
     go acc [] = acc
