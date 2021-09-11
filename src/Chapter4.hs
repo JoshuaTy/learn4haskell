@@ -711,19 +711,23 @@ Specifically,
  ❃ Implement the function to convert Tree to list
 -}
 
--- newtype Leaf a = Leaf a deriving (Show)
 
-data Tree a  = End | TLeft a (Tree a) |  TRight a (Tree a) | Couple a (Tree a) (Tree a) deriving (Show)
+data Tree a = End | Leaf a (Tree a) (Tree a) deriving (Show)
 
 
 instance Functor Tree where
-  fmap :: (a->b) -> Tree a -> Tree b
+  fmap :: (a -> b) -> Tree a -> Tree b
   fmap _ End = End
-  fmap f (TLeft a t) = TLeft (f a) (fmap f t)
-  fmap f (TRight a t) = TRight (f a) (fmap f t)
-  fmap f (Couple a l r) = Couple (f a) (fmap f l) (fmap f r)
+  fmap f (Leaf a left right) = Leaf (f a) (fmap f left) (fmap f right)
 
---  fmap (+1) (Couple 3 (TLeft 2 (TLeft 0 End))  End)
+
+--  fmap (+1) (Leaf 7 (Leaf 6 (Leaf 4 End End) (Leaf 3 End End)) (Leaf 5 (Leaf 2 End End) (Leaf 1 End End)))
+--       7
+--   6      5
+-- 4  3    2  1
+
+reverseTree :: Tree a -> Tree a
+reverseTree t = t
 
 {-
 You did it! Now it is time to open pull request with your changes
