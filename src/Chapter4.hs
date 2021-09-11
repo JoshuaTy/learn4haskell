@@ -667,9 +667,7 @@ Can you implement a monad version of AND, polymorphic over any monad?
 🕯 HINT: Use "(>>=)", "pure" and anonymous function
 -}
 andM :: (Monad m) => m Bool -> m Bool -> m Bool
-andM x y = x >>= (\x' -> if x' == False then pure x' else y >>= (\y' -> pure $ y' && x'))
-
-
+andM  mbA mbB = mbA >>= (\a -> if a == False then pure a else mbB >>= (\b -> pure $ b && a))
 
 {- |
 =🐉= Task 9*: Final Dungeon Boss
@@ -712,6 +710,13 @@ Specifically,
    subtree of a tree
  ❃ Implement the function to convert Tree to list
 -}
+
+-- newtype Leaf a = Leaf a deriving (Show)
+
+data Tree a  = End | TLeft a (Tree a) |  TRight a (Tree a) | Couple a (Tree a) (Tree a) deriving (Show)
+
+
+instance Functor Tree where
 
 
 {-
