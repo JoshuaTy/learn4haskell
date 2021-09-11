@@ -717,7 +717,13 @@ data Tree a  = End | TLeft a (Tree a) |  TRight a (Tree a) | Couple a (Tree a) (
 
 
 instance Functor Tree where
+  fmap :: (a->b) -> Tree a -> Tree b
+  fmap _ End = End
+  fmap f (TLeft a t) = TLeft (f a) (fmap f t)
+  fmap f (TRight a t) = TRight (f a) (fmap f t)
+  fmap f (Couple a l r) = Couple (f a) (fmap f l) (fmap f r)
 
+--  fmap (+1) (Couple 3 (TLeft 2 (TLeft 0 End))  End)
 
 {-
 You did it! Now it is time to open pull request with your changes
