@@ -727,7 +727,8 @@ instance Functor Tree where
 -- 4  3    2  1
 
 reverseTree :: Tree a -> Tree a
-reverseTree t = t
+reverseTree End = End
+reverseTree (Leaf a l r) = Leaf a (reverseTree r) (reverseTree l)
 
 {-
 You did it! Now it is time to open pull request with your changes
