@@ -667,7 +667,9 @@ Can you implement a monad version of AND, polymorphic over any monad?
 🕯 HINT: Use "(>>=)", "pure" and anonymous function
 -}
 andM :: (Monad m) => m Bool -> m Bool -> m Bool
-andM  mbA mbB = mbA >>= (\a -> if a == False then pure a else mbB >>= (\b -> pure $ b && a))
+andM  ma mb = ma >>= \a -> if a then mb else pure False
+
+-- Alternate Solution: andM  mbA mbB = mbA >>= (\a -> if a == False then pure a else mbB >>= (\b -> pure $ b && a))
 
 {- |
 =🐉= Task 9*: Final Dungeon Boss
